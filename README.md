@@ -1,96 +1,128 @@
 # AI Agent Fusion Lab 🔬
 
-> Disassembling three top-tier AI Agent frameworks — Hermes Agent, Slack Engineering's multi-role system, and OpenClaw — and fusing them into one more powerful system.
+> **I designed a unified Agent architecture** by fusing the best ideas from three world-class frameworks — and built production-ready plugins for both [OpenClaw](https://github.com/openclaw) and [Claude Code](https://claude.ai/code) to make it usable today.
 
-## What is this?
+## The Problem
 
-An **AI Agent architecture experiment**. My AI assistant (Jarvis) independently analyzed three world-class Agent frameworks:
+Most AI Agents suffer from three systemic flaws:
 
-| Framework | Core Capability | Stars |
-|-----------|----------------|-------|
-| [Hermes Agent](https://github.com/nousresearch/hermes-agent) | 4-layer memory + closed-loop learning (gets smarter over time) | 22k+ |
-| [Slack Engineering](https://slack.engineering/) | Multi-role checks & balances + narrative coherence enforcement (anti-hallucination) | Internal |
-| [OpenClaw](https://github.com/openclaw) | Multi-agent orchestration + security isolation | - |
+1. **Amnesia** — They forget everything between sessions. Teach them something today, they relearn it tomorrow.
+2. **Blind spots** — They can't tell when they're wrong. No self-verification, no fact-checking.
+3. **Context collapse** — Long conversations degrade. Token explosion, contradictions, task drift.
 
-**Key finding**: Each framework solves a completely different problem with zero feature overlap. Fused together, they form an Agent system that is **smarter, more reliable, and self-improving**.
+## The Solution: Fusion Architecture
 
-## Architecture
+I analyzed three frameworks that each solve **one** of these problems perfectly — with zero overlap:
 
-```
-[OpenClaw Main] ─── Orchestration Layer (decides what to do, delegates to whom)
-    │
-    ├── [Hermes-style Execution] ─── Execution Layer
-    │       ├── Dynamic planning: Plan → Execute → Replan
-    │       ├── 70+ tool calls with step logging
-    │       └── Async background review + auto Skill generation
-    │
-    ├── [Slack-style Critic] ─── Verification Layer
-    │       ├── Journal: structured decision log (6 entry types)
-    │       ├── Review: 5-level credibility scoring
-    │       └── Timeline: narrative coherence enforcement & pruning
-    │
-    └── [OpenClaw Audit] ─── Final Acceptance Layer
-            └── Pass / Reject / Revise
-```
+| Framework | Solves | Key Innovation |
+|-----------|--------|----------------|
+| [Hermes Agent](https://github.com/nousresearch/hermes-agent) (22k+ ⭐) | Amnesia | 4-layer memory + closed-loop learning |
+| [Slack Engineering](https://slack.engineering/) | Blind spots | Multi-role Critic + narrative coherence |
+| [OpenClaw](https://github.com/openclaw) | Context collapse | Structured channels replace message history |
 
-**In plain English**: OpenClaw acts as the commander, Hermes handles execution and continuous improvement, Slack's Critic verifies accuracy.
+**My fusion insight**: Wire them together — memory feeds the critic, the critic feeds the orchestrator, and nothing relies on raw message history.
 
-## Repository Structure
+### Architecture
 
 ```
-ai-agent-fusion-lab/
-├── README.md                              ← You are here
-├── LICENSE                                ← MIT License
-├── protocols/
-│   └── critic-protocol.md                 ← Critic verification protocol (Phase 1 shipped)
-├── docs/
-│   ├── slack-agentic-context-analysis.md       ← Deep analysis of Slack's system
-│   └── three-framework-comparison.md           ← Detailed 3-framework comparison
-└── articles/
-    ├── README-zh-CN.md                      ← Main article (Chinese - Zhihu/WeChat)
-    ├── xiaohongshu.md                       ← Xiaohongshu (Little Red Book) version
-    ├── zhihu-zsxq.md                        ← Zhihu / Zsxq (Knowledge Planet) version
-    └── douyin.md                            ← Douyin (TikTok China) version
+                    ┌─────────────────────────────┐
+                    │     Orchestrator (OpenClaw)   │
+                    │   Decides what, delegates who  │
+                    └──────┬──────────┬────────────┘
+                           │          │
+              ┌────────────▼──┐  ┌────▼─────────────┐
+              │   Executor     │  │     Critic        │
+              │ (Hermes-style) │  │ (Slack-style)     │
+              │                │  │                   │
+              │ • Plan→Exec    │  │ • 5-level score   │
+              │ • Auto Skill   │  │ • Journal log     │
+              │ • Async review │  │ • Narrative check │
+              └────────────────┘  └───────────────────┘
 ```
 
-## 🛠️ Critic Protocol (Shipped)
+## What's in This Repo
 
-The core deliverable of Fusion Phase 1 — an **execution result verification protocol**.
+### 🧩 Installable Plugins
 
-### Three Core Outputs
+| Plugin | Platform | What it does |
+|--------|----------|-------------|
+| [`skills/critic-review/`](skills/critic-review/) | OpenClaw | Post-task factual verification — scores claims, logs decisions, outputs verdict |
+| [`claude-code/`](claude-code/) | Claude Code | CLAUDE.md + slash commands for the same Critic Protocol |
 
-1. **Journal (Decision Log)**: 6 entry types — DECISION / FINDING / HYPOTHESIS / ACTION / CORRECTION / QUESTION
-2. **Review (5-Level Scoring)**: Verified → Likely → Plausible → Misguided → Hallucinated
-3. **One-Line Verdict**: PASS / PASS_WITH_NOTES / FAIL + credibility distribution
+**Quick start — OpenClaw:**
+```bash
+# Copy the skill to your OpenClaw skills directory
+cp -r skills/critic-review/ ~/.openclaw/skills/
+# Restart OpenClaw — Critic triggers automatically after substantive tasks
+```
+
+**Quick start — Claude Code:**
+```bash
+# Copy into your project
+cp -r claude-code/ .claude/
+# Use /critic-review after completing any task
+```
+
+### 📖 Documentation
+
+| File | Description |
+|------|-------------|
+| [`protocols/critic-protocol.md`](protocols/critic-protocol.md) | Full Critic Protocol specification |
+| [`docs/slack-agentic-context-analysis.md`](docs/slack-agentic-context-analysis.md) | Deep analysis of Slack's investigation system |
+| [`docs/three-framework-comparison.md`](docs/three-framework-comparison.md) | Detailed 3-framework comparison |
+
+### ✍️ Articles (Chinese)
+
+Published on four platforms — [`articles/`](articles/) contains the source text for each:
+
+| Platform | File |
+|----------|------|
+| Zhihu / WeChat | `articles/README-zh-CN.md` |
+| Xiaohongshu | `articles/xiaohongshu.md` |
+| Knowledge Planet | `articles/zhihu-zsxq.md` |
+| Douyin | `articles/douyin.md` |
+
+## How the Critic Protocol Works
+
+### Three Outputs
+
+1. **Journal** — Structured decision log with 6 entry types (DECISION, FINDING, HYPOTHESIS, ACTION, CORRECTION, QUESTION)
+2. **Review** — 5-level credibility scoring for every factual claim
+3. **Verdict** — PASS / PASS_WITH_NOTES / FAIL + credibility distribution
+
+### The Anti-Hallucination Secret
+
+> *"Hallucinations can only survive if they are more narratively coherent than real observations."*
+
+A single claim may look correct in isolation. But if it contradicts the overall evidence chain — the Journal — it gets downgraded automatically. This is the most counter-intuitive but effective anti-hallucination mechanism I've found.
 
 ### Core Principles
 
-- **No message history passed**: Critic only sees Journal + current result, never raw conversation
-- **Stronger model for Critic**: Critic uses a more capable model than the execution agent
-- **Narrative coherence priority**: Content contradicting the overall evidence chain is automatically downgraded
+- **No message history passed** — Critic only sees Journal + current result
+- **Stronger model for Critic** — Verification uses more capable model than execution
+- **Narrative coherence priority** — Contradictions with evidence chain → auto downgrade
 
-See [`protocols/critic-protocol.md`](protocols/critic-protocol.md) for full specification.
+## Implementation Roadmap
 
-## 🗺️ Implementation Roadmap
+- [x] **Phase 1** — Critic Protocol + Journal format + 5-level scoring ✅
+- [x] **Phase 1b** — OpenClaw Skill + Claude Code plugin ✅
+- [ ] **Phase 2** — Auto Skill generation from repeated task patterns
+- [ ] **Phase 3** — Timeline narrative coherence integrator (cron-based)
 
-- [x] **Phase 1** (Complete) — Introduce Critic role, define Journal + scoring rubric
-- [ ] **Phase 2** (In Progress) — Auto Skill generation with patch-based iteration
-- [ ] **Phase 3** (Planned) — Timeline narrative coherence integrator
-
-## 📚 Top 3 Takeaways
+## Top 3 Takeaways
 
 If you only learn one thing from each framework:
 
-🥇 **Slack's "Narrative Coherence Enforcement"** — The most counter-intuitive anti-hallucination design
+🥇 **Slack's "Narrative Coherence Enforcement"** — Check claims against the whole evidence chain, not just in isolation
 🥈 **Hermes's "Async Background Review"** — Learning becomes the agent's instinct, not overhead
-🥉 **Hermes's "Progressive Disclosure"** — An elegant solution to token explosion in long-term agents
+🥉 **Hermes's "Progressive Disclosure"** — Only load Skill summaries by default; full content on demand
 
-## 🤝 Acknowledgments
+## Acknowledgments
 
 - [Nous Research](https://github.com/nousresearch) — Hermes Agent
-- [Slack Engineering](https://slack.engineering/) — Multi-role security investigation system
+- [Slack Engineering](https://slack.engineering/) — Multi-role investigation system
 - [OpenClaw](https://github.com/openclaw) — Multi-agent orchestration platform
 
-## 📄 License
+## License
 
-MIT License — use, modify, and distribute freely.
+MIT — use, modify, and distribute freely.
