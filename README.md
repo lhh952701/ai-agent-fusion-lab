@@ -1,100 +1,96 @@
 # AI Agent Fusion Lab 🔬
 
-> 把 Hermes Agent、Slack Engineering 多角色系统、OpenClaw 三大框架拆解后融合成一个更强的 AI Agent 系统。
+> Disassembling three top-tier AI Agent frameworks — Hermes Agent, Slack Engineering's multi-role system, and OpenClaw — and fusing them into one more powerful system.
 
-## 📖 这是什么？
+## What is this?
 
-这是一个**AI Agent 架构实验项目**。我的 AI 助手（贾维斯）独立分析了三款顶级 AI Agent 框架：
+An **AI Agent architecture experiment**. My AI assistant (Jarvis) independently analyzed three world-class Agent frameworks:
 
-| 框架 | 核心能力 | Stars |
-|------|----------|-------|
-| [Hermes Agent](https://github.com/nousresearch/hermes-agent) | 四层记忆 + 闭合学习回路（越用越强） | 22k+ |
-| [Slack Engineering](https://slack.engineering/) | 多角色制衡 + 叙事一致性强制（防幻觉） | 企业内部 |
-| [OpenClaw](https://github.com/openclaw) | 多智能体编排 + 安全隔离 | - |
+| Framework | Core Capability | Stars |
+|-----------|----------------|-------|
+| [Hermes Agent](https://github.com/nousresearch/hermes-agent) | 4-layer memory + closed-loop learning (gets smarter over time) | 22k+ |
+| [Slack Engineering](https://slack.engineering/) | Multi-role checks & balances + narrative coherence enforcement (anti-hallucination) | Internal |
+| [OpenClaw](https://github.com/openclaw) | Multi-agent orchestration + security isolation | - |
 
-**发现**：三者各自解决一个完全不同的问题，零功能重叠。融合后得到一个**既聪明又可靠还会越来越强**的 Agent 系统。
+**Key finding**: Each framework solves a completely different problem with zero feature overlap. Fused together, they form an Agent system that is **smarter, more reliable, and self-improving**.
 
-## 🏗️ 融合架构
+## Architecture
 
 ```
-[OpenClaw Main] ─── 编排层（决定做什么、分发给谁）
+[OpenClaw Main] ─── Orchestration Layer (decides what to do, delegates to whom)
     │
-    ├── [Hermes 式执行] ─── 执行层
-    │       ├── 动态规划：Plan → Execute → Replan
-    │       ├── 70+ 工具调用 + 步骤记录
-    │       └── 异步后台复盘 + 自动生成 Skill
+    ├── [Hermes-style Execution] ─── Execution Layer
+    │       ├── Dynamic planning: Plan → Execute → Replan
+    │       ├── 70+ tool calls with step logging
+    │       └── Async background review + auto Skill generation
     │
-    ├── [Slack 式 Critic] ─── 验证层
-    │       ├── Journal：结构化决策日志（6 种条目）
-    │       ├── Review：五级可信度评分
-    │       └── Timeline：叙事一致性强制剪枝
+    ├── [Slack-style Critic] ─── Verification Layer
+    │       ├── Journal: structured decision log (6 entry types)
+    │       ├── Review: 5-level credibility scoring
+    │       └── Timeline: narrative coherence enforcement & pruning
     │
-    └── [OpenClaw Audit] ─── 最终验收层
-            └── 通过 / 打回 / 修正
+    └── [OpenClaw Audit] ─── Final Acceptance Layer
+            └── Pass / Reject / Revise
 ```
 
-**人话版**：OpenClaw 当指挥官，Hermes 负责把事做好并越做越好，Slack 的 Critic 负责检查做得对不对。
+**In plain English**: OpenClaw acts as the commander, Hermes handles execution and continuous improvement, Slack's Critic verifies accuracy.
 
-## 📁 项目结构
+## Repository Structure
 
 ```
 ai-agent-fusion-lab/
-├── README.md                          ← 你在这里
-├── LICENSE                            ← MIT 许可证
+├── README.md                              ← You are here
+├── LICENSE                                ← MIT License
 ├── protocols/
-│   └── critic-protocol.md             ← Critic 验证协议（Phase 1 已落地）
+│   └── critic-protocol.md                 ← Critic verification protocol (Phase 1 shipped)
 ├── docs/
-│   ├── slack-agentic-context-analysis.md    ← Slack 系统深度分析
-│   └── three-framework-comparison.md        ← 三框架对比分析
+│   ├── slack-agentic-context-analysis.md       ← Deep analysis of Slack's system
+│   └── three-framework-comparison.md           ← Detailed 3-framework comparison
 └── articles/
-    ├── README-zh-CN.md               ← 主文（知乎/公众号）
-    ├── xiaohongshu.md                ← 小红书版
-    ├── zhihu-zsxq.md                 ← 知识星球版
-    └── douyin.md                     ← 抖音版
+    ├── README-zh-CN.md                      ← Main article (Chinese - Zhihu/WeChat)
+    ├── xiaohongshu.md                       ← Xiaohongshu (Little Red Book) version
+    ├── zhihu-zsxq.md                        ← Zhihu / Zsxq (Knowledge Planet) version
+    └── douyin.md                            ← Douyin (TikTok China) version
 ```
 
-## 🛠️ Critic Protocol（已落地）
+## 🛠️ Critic Protocol (Shipped)
 
-融合方案 Phase 1 的核心产出——**执行结果验证协议**。
+The core deliverable of Fusion Phase 1 — an **execution result verification protocol**.
 
-### 三大核心输出
+### Three Core Outputs
 
-1. **Journal（决策日志）**：6 种条目类型（DECISION / FINDING / HYPOTHESIS / ACTION / CORRECTION / QUESTION）
-2. **Review（五级评分）**：Verified → Likely → Plausible → Misguided → Hallucinated
-3. **一句话裁定**：PASS / PASS_WITH_NOTES / FAIL + 可信度分布
+1. **Journal (Decision Log)**: 6 entry types — DECISION / FINDING / HYPOTHESIS / ACTION / CORRECTION / QUESTION
+2. **Review (5-Level Scoring)**: Verified → Likely → Plausible → Misguided → Hallucinated
+3. **One-Line Verdict**: PASS / PASS_WITH_NOTES / FAIL + credibility distribution
 
-### 核心原则
+### Core Principles
 
-- **不传消息历史**：Critic 只看 Journal + 当前结果，不看原始对话
-- **用更强模型**：Critic 用比执行 Agent 更强的模型
-- **叙事一致性优先**：与整体证据链矛盾的内容自动降级
+- **No message history passed**: Critic only sees Journal + current result, never raw conversation
+- **Stronger model for Critic**: Critic uses a more capable model than the execution agent
+- **Narrative coherence priority**: Content contradicting the overall evidence chain is automatically downgraded
 
-详见 [`protocols/critic-protocol.md`](protocols/critic-protocol.md)。
+See [`protocols/critic-protocol.md`](protocols/critic-protocol.md) for full specification.
 
-## 🗺️ 实施路径
+## 🗺️ Implementation Roadmap
 
-- [x] **Phase 1**（已完成）— 引入 Critic 角色，定义 Journal + 评分标准
-- [ ] **Phase 2**（进行中）— Skill 自动生成与补丁式迭代
-- [ ] **Phase 3**（计划中）— Timeline 叙事一致性整合器
+- [x] **Phase 1** (Complete) — Introduce Critic role, define Journal + scoring rubric
+- [ ] **Phase 2** (In Progress) — Auto Skill generation with patch-based iteration
+- [ ] **Phase 3** (Planned) — Timeline narrative coherence integrator
 
-## 📚 推荐阅读
+## 📚 Top 3 Takeaways
 
-如果只从三个框架各学一个东西：
+If you only learn one thing from each framework:
 
-🥇 **Slack 的"叙事一致性强制"** — 防幻觉的最反直觉设计
-🥈 **Hermes 的"异步后台复盘"** — 学习变成 Agent 的本能
-🥉 **Hermes 的"渐进式披露"** — 解决 Token 爆炸的优雅方案
+🥇 **Slack's "Narrative Coherence Enforcement"** — The most counter-intuitive anti-hallucination design
+🥈 **Hermes's "Async Background Review"** — Learning becomes the agent's instinct, not overhead
+🥉 **Hermes's "Progressive Disclosure"** — An elegant solution to token explosion in long-term agents
 
-## 🤝 致谢
+## 🤝 Acknowledgments
 
 - [Nous Research](https://github.com/nousresearch) — Hermes Agent
-- [Slack Engineering](https://slack.engineering/) — 多角色安全调查系统
-- [OpenClaw](https://github.com/openclaw) — 多智能体编排平台
+- [Slack Engineering](https://slack.engineering/) — Multi-role security investigation system
+- [OpenClaw](https://github.com/openclaw) — Multi-agent orchestration platform
 
-## 📄 许可证
+## 📄 License
 
-MIT License — 自由使用、修改、分发。
-
----
-
-*本文由 AI 助手贾维斯主笔，经人类审核发布。*
+MIT License — use, modify, and distribute freely.

@@ -1,102 +1,104 @@
-# Critic Protocol — 执行结果验证机制
+# Critic Protocol — Execution Result Verification Mechanism
 
-> 灵感来源：Slack Engineering 的多 Agent 安全调查系统
-> 融入 OpenClaw 的执行链路：Main → Ops(执行) → **Critic(评分)** → Audit(验收)
+> Inspired by: Slack Engineering's multi-Agent security investigation system
+> Integrated into: Main → Ops (execute) → **Critic (score)** → Audit (accept)
 
-## 一、什么时候触发 Critic？
+## 1. When to Trigger Critic?
 
-- Subagent 完成任何**实质性任务**后（非闲聊、非简单问答）
-- 任务涉及**事实性声明**时（数据、结论、推荐）
-- 用户明确要求验证时
+- After a Subagent completes any **substantive task** (not casual chat or simple Q&A)
+- When the task involves **factual claims** (data, conclusions, recommendations)
+- When the user explicitly requests verification
 
-不触发：问候、格式转换、简单文件读写、代码补全等低风险操作。
+Do NOT trigger for: greetings, format conversions, simple file reads/writes, code completions, or other low-risk operations.
 
-## 二、Critic 的三个输出
+## 2. Critic's Three Outputs
 
-### 2.1 Journal 条目（决策日志）
+### 2.1 Journal Entry (Decision Log)
 
-Critic 在评分前，先写一条 Journal 条目到 `memory/journal.md`。
+Before scoring, Critic writes a Journal entry to `memory/journal.md`.
 
-格式：
+Format:
 ```
-## [时间戳] 任务摘要
-- **类型**: DECISION / FINDING / HYPOTHESIS / ACTION / CORRECTION / QUESTION
-- **决策**: 做了什么选择，为什么
-- **依据**: 基于什么信息做的决策
-- **预期**: 预期结果是什么
-- **实际**: 实际结果是什么
-- **偏差**: 预期与实际的差异（如有）
-- **引证**: 关键信息来源
-```
-
-Journal 条目类型（6种）：
-1. **DECISION** — 做出的关键决策
-2. **FINDING** — 发现的事实
-3. **HYPOTHESIS** — 提出的假设
-4. **ACTION** — 执行的操作
-5. **CORRECTION** — 纠正的错误
-6. **QUESTION** — 待验证的问题
-
-### 2.2 Review 评分（证据链审查）
-
-对执行结果中的每个**事实性声明**，逐条评分：
-
-| 等级 | 标签 | 含义 | 处理方式 |
-|------|------|------|----------|
-| 5 | **Verified** | 有直接证据支持，可确信 | 保留 |
-| 4 | **Likely** | 间接证据支持，大概率正确 | 保留，标注来源 |
-| 3 | **Plausible** | 逻辑自洽但无直接证据 | 保留，标注需验证 |
-| 2 | **Misguided** | 有矛盾证据或逻辑缺陷 | 剪枝或修正 |
-| 1 | **Hallucinated** | 无证据支持，与已知信息矛盾 | 必须删除 |
-
-评分标准：
-- 是否有可追溯的信息来源？
-- 逻辑链是否完整（前提→推理→结论）？
-- 是否与 Journal 中已记录的事实矛盾？
-- 是否存在过度推断（从A跳到D，跳过了B和C）？
-
-### 2.3 一句话裁定
-
-```
-Critic 裁定: [PASS / PASS_WITH_NOTES / FAIL]
-理由: [一句话]
-可信度分布: Verified X% | Likely X% | Plausible X% | Misguided X% | Hallucinated X%
+## [Timestamp] Task Summary
+- **Type**: DECISION / FINDING / HYPOTHESIS / ACTION / CORRECTION / QUESTION
+- **Decision**: What was chosen and why
+- **Basis**: What information the decision was based on
+- **Expected**: What the expected outcome was
+- **Actual**: What actually happened
+- **Variance**: Gap between expected and actual (if any)
+- **Citations**: Key information sources
 ```
 
-## 三、核心原则
+Journal entry types (6):
+1. **DECISION** — A key decision made
+2. **FINDING** — A fact discovered
+3. **HYPOTHESIS** — A hypothesis proposed
+4. **ACTION** — An action taken
+5. **CORRECTION** — An error corrected
+6. **QUESTION** — Something pending verification
 
-### 3.1 不传消息历史
-即使 context window 有空间，Critic 也**不接收原始对话历史**。
-只接收：
-- Journal（决策日志）
-- 当前待审查的执行结果
-- 相关文件内容（按需读取）
+### 2.2 Review Scoring (Evidence Chain Audit)
 
-原因：累积的旧上下文会妨碍 Critic 客观评估当前结果。
+Each **factual claim** in the execution result is scored individually:
 
-### 3.2 用更强模型做 Critic
-如果可用，Critic 应使用比执行 Agent 更强的模型。
-（例如：执行用 Sonnet，Critic 用 Opus）
+| Level | Label | Meaning | Action |
+|-------|-------|---------|--------|
+| 5 | **Verified** | Direct evidence supports it; can be trusted | Keep |
+| 4 | **Likely** | Indirect evidence supports it; probably correct | Keep, cite source |
+| 3 | **Plausible** | Logically coherent but no direct evidence | Keep, flag for verification |
+| 2 | **Misguided** | Contradictory evidence or logical flaws | Prune or revise |
+| 1 | **Hallucinated** | No evidence; contradicts known facts | Must delete |
 
-### 3.3 叙事一致性优先
-单条发现可能逻辑自洽，但如果与整体证据链叙事矛盾，应降级。
-**幻觉只有在比真实观察更具叙事连贯性时才能存活**——利用这一点反向检测。
+Scoring criteria:
+- Is there a traceable information source?
+- Is the logic chain complete (premise → reasoning → conclusion)?
+- Does it contradict previously recorded Journal facts?
+- Is there over-inference (jumping from A to D, skipping B and C)?
 
-## 四、实现方式
+### 2.3 One-Line Verdict
 
-Critic 不需要独立进程。在执行流程中，Main Agent 完成任务后，自我切换到 Critic 模式：
+```
+Critic Verdict: [PASS / PASS_WITH_NOTES / FAIL]
+Reason: [one sentence]
+Credibility Distribution: Verified X% | Likely X% | Plausible X% | Misguided X% | Hallucinated X%
+```
 
-1. 读取 `memory/journal.md` 获取历史决策上下文
-2. 按上述标准对当前结果评分
-3. 追加 Journal 条目
-4. 输出裁定
-5. 如果 FAIL，自动触发修正流程
+## 3. Core Principles
 
-## 五、与 Audit 的区别
+### 3.1 No Message History
+Even if the context window has room, Critic **never receives raw conversation history**.
 
-| | Audit（现有） | Critic（新增） |
+It only receives:
+- Journal (decision log)
+- Current execution result under review
+- Relevant file contents (read on demand)
+
+**Why**: Accumulated old context biases Critic's evaluation of the current result.
+
+### 3.2 Stronger Model for Critic
+If available, Critic should use a more capable model than the execution Agent.
+(e.g., execution uses Sonnet, Critic uses Opus)
+
+### 3.3 Narrative Coherence Priority
+An individual finding may be logically self-consistent, but if it contradicts the overall evidence chain narrative, it should be downgraded.
+
+**Hallucinations can only survive if they are more narratively coherent than real observations** — exploit this in reverse to detect them.
+
+## 4. Implementation
+
+Critic does not require a separate process. In the execution flow, the Main Agent switches to Critic mode after completing a task:
+
+1. Read `memory/journal.md` for historical decision context
+2. Score factual claims in the current result using the rubric above
+3. Append a new Journal entry to `memory/journal.md`
+4. Output the verdict
+5. If FAIL, automatically trigger a revision loop and re-score
+
+## 5. Critic vs. Audit
+
+| | Audit (existing) | Critic (new) |
 |--|--|--|
-| 关注点 | 安全合规、权限检查 | 事实准确性、逻辑一致性 |
-| 触发时机 | 每次工具调用 | 任务完成后 |
-| 输出 | 通过/拒绝 | 五级评分 + 可信度分布 |
-| 累积性 | 无 | Journal 持续积累 |
+| **Focus** | Security compliance, permission checks | Factual accuracy, logical consistency |
+| **Trigger** | Every tool call | After task completion |
+| **Output** | Pass / Reject | 5-level score + credibility distribution |
+| **Accumulation** | None | Journal grows over time |
