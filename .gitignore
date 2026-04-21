@@ -1,0 +1,7 @@
+# AI Agent Fusion Lab
+node_modules/
+.DS_Store
+Thumbs.db
+*.tmp
+.env
+__pycache__/
